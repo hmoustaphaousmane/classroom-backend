@@ -1,5 +1,5 @@
 import express from "express";
-import {and, desc, eq, getTableColumns, ilike, or, sql} from "drizzle-orm";
+import {and, desc, eq, getTableColumns, ilike, or, sql, type SQL} from "drizzle-orm";
 import {departments, subjects} from "../db/schema";
 import {db} from "../db";
 
@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 
         const offset = (currentPage - 1) * limitPerPage;
 
-        const filterConditions = [];
+        const filterConditions: SQL[] = [];
 
         // If the search query exists, filter by subject name OR subject code
         if (search) {
@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
                 or(
                     ilike(subjects.name, searchPattern),
                     ilike(subjects.code, searchPattern)
-                )
+                )!
             );
         }
 
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
             .leftJoin(departments, eq(subjects.departmentId, departments.id))
             .where(whereClause);
 
-        const totalCount = countResult[0]?.count ?? 0;
+        const totalCount = Number(countResult[0]?.count ?? 0);
 
         const subjectsList = await db
             .select({
@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
             .from(subjects)
             .leftJoin(departments, eq(subjects.departmentId, departments.id))
             .where(whereClause)
-            .orderBy(desc((subjects.createdAt)))
+            .orderBy(desc(subjects.createdAt))
             .limit(limitPerPage)
             .offset(offset);
 
