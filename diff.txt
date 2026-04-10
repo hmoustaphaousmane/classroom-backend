@@ -1,0 +1,82 @@
+diff --git a/src/db/schema/index.ts b/src/db/schema/index.ts
+index 8bb08fd..85ca3bf 100644
+--- a/src/db/schema/index.ts
++++ b/src/db/schema/index.ts
+@@ -1,2 +1,2 @@
+-export * from './app';
+-export * from './auth';
++export * from './app.js';
++export * from './auth.js';
+diff --git a/src/index.ts b/src/index.ts
+index a955aa5..e597a22 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -4,11 +4,11 @@ AgentAPI().config();
+ import express from "express";
+ import cors from "cors";
+ 
+-import subjectsRouter from "./routes/subjects";
+-import securityMiddleware from "./middleware/security";
++import subjectsRouter from "./routes/subjects.js";
++import securityMiddleware from "./middleware/security.js";
+ 
+ import {toNodeHandler} from "better-auth/node";
+-import { auth } from "./lib/auth";
++import { auth } from "./lib/auth.js";
+ 
+ const app = express();
+ const PORT = process.env.PORT || 8000;
+diff --git a/src/lib/auth.ts b/src/lib/auth.ts
+index 0a34026..371438b 100644
+--- a/src/lib/auth.ts
++++ b/src/lib/auth.ts
+@@ -1,7 +1,7 @@
+ import { betterAuth } from "better-auth";
+ import { drizzleAdapter } from "better-auth/adapters/drizzle";
+-import { db } from "../db"; // your drizzle instance
+-import * as schema from "../db/schema/auth";
++import { db } from "../db/index.js"; // your drizzle instance
++import * as schema from "../db/schema/auth.js";
+ 
+ export const auth = betterAuth({
+     secret: process.env.AUTH_SECRET,
+diff --git a/src/middleware/security.ts b/src/middleware/security.ts
+index faba779..862e5c8 100644
+--- a/src/middleware/security.ts
++++ b/src/middleware/security.ts
+@@ -1,5 +1,5 @@
+ import type {NextFunction, Request, Response} from "express";
+-import aj from '../config/arcjet';
++import aj from '../config/arcjet.js';
+ import type {ArcjetNodeRequest} from "@arcjet/node";
+ import {slidingWindow} from "@arcjet/node";
+ 
+diff --git a/src/routes/subjects.ts b/src/routes/subjects.ts
+index b1f0e05..c9c03d4 100644
+--- a/src/routes/subjects.ts
++++ b/src/routes/subjects.ts
+@@ -1,7 +1,7 @@
+ import express from "express";
+ import {and, desc, eq, getTableColumns, ilike, or, sql, type SQL} from "drizzle-orm";
+-import {departments, subjects} from "../db/schema";
+-import {db} from "../db";
++import {departments, subjects} from "../db/schema/index.js";
++import {db} from "../db/index.js";
+ 
+ const router = express.Router();
+ 
+diff --git a/tsconfig.json b/tsconfig.json
+index c89ff9a..fe84879 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -5,8 +5,8 @@
+     "lib": ["ES2022"],
+ 
+     /* Node ESM */
+-    "module": "ES2022",
+-    "moduleResolution": "node",
++    "module": "Node16",
++    "moduleResolution": "node16",
+ 
+     /* Project structure */
+     "rootDir": "src",
